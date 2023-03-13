@@ -1,0 +1,52 @@
+name: 'Protokollant'
+description: 'Perform platform-agnostic releases using Protokollant'
+branding:
+  icon: bookmark
+  color: yellow
+inputs:
+  bump:
+    description: 'The bump to perform'
+    required: true
+  diff:
+    description: 'Whether to only export the diff'
+    default: 'false'
+  unreleased:
+    description: 'Whether to create a new unreleased section'
+    default: 'false'
+  changelog:
+    description: 'Whether to write to the changelog'
+    default: 'true'
+  protokollant-version:
+    description: 'The version of Protokollant to use, latest by default'
+    required: false
+outputs:
+  version:
+    description: 'The new version of the application'
+    value: ${{ steps.run.outputs.version }}
+  previous-version:
+    description: 'The former version of the application'
+    value: ${{ steps.run.outputs.previous-version }}
+  bump:
+    description: 'Whether the version was bumped'
+    value: ${{ steps.run.outputs.bump }}
+  protokollant-version:
+    description: 'The version of Protokollant being used'
+    value: ${{ steps.setup.outputs.version }}
+  protokollant-path:
+    description: 'The absolute path to the Protokollant binary'
+    value: ${{ steps.setup.outputs.path }}
+runs:
+  using: 'composite'
+  steps:
+    - uses: ksm2/setup-protokollant-action@v1
+      id: setup
+      with:
+        version: ${{ inputs.protokollant-version }}
+
+    - uses: ksm2/run-protokollant-action@v1
+      id: run
+      with:
+        diff: ${{ inputs.diff }}
+        unreleased: ${{ inputs.unreleased }}
+        changelog: ${{ inputs.changelog }}
+        bump: ${{ inputs.bump }}
